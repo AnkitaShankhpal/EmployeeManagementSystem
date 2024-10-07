@@ -1,0 +1,51 @@
+<div class="container">
+    <h2>{{ isEditMode ? 'Edit' : 'Add' }} Employee</h2>
+  
+    <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" class="form-control" formControlName="firstName">
+        <div *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched" class="text-danger">
+          First name is required.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" class="form-control" formControlName="lastName">
+        <div *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched" class="text-danger">
+          Last name is required.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" class="form-control" formControlName="email">
+        <div *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched" class="text-danger">
+          A valid email is required.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="position">Position</label>
+        <input id="position" type="text" class="form-control" formControlName="position">
+        <div *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched" class="text-danger">
+          Position is required.
+        </div>
+      </div>
+  
+      <div class="form-group">
+        <label for="salary">Salary</label>
+        <input id="salary" type="number" class="form-control" formControlName="salary">
+        <div *ngIf="employeeForm.get('salary')?.invalid && employeeForm.get('salary')?.touched" class="text-danger">
+          A valid salary is required.
+        </div>
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="employeeForm.invalid">
+        {{ isEditMode ? 'Update' : 'Add' }} Employee
+      </button>
+      <a routerLink="/employees" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+  
