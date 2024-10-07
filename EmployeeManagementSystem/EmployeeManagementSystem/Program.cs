@@ -1,9 +1,9 @@
 using EmployeeManagementSystem;
-using EmployeeManagementSystem.IRepository;
-using EmployeeManagementSystem.IService;
 using EmployeeManagementSystem.Model;
-using EmployeeManagementSystem.Repository;
-using EmployeeManagementSystem.Service;
+using EmployeeManagementSystem.Repository.Contract;
+using EmployeeManagementSystem.Repository.Implementation;
+using EmployeeManagementSystem.Service.Contract;
+using EmployeeManagementSystem.Service.Implementation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -19,29 +19,31 @@ builder.Services.AddEndpointsApiExplorer();
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
-    // Add JWT Authentication to Swagger
+    // Add Swagger security definition
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        In = ParameterLocation.Header,
-        Description = "Please insert JWT with Bearer into field",
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
         Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
         Scheme = "Bearer"
     });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+
+    // Add Swagger security requirement
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        new OpenApiSecurityScheme
         {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                Array.Empty<string>()
             }
-        },
-        Array.Empty<string>()
-    }});
+     });
 });
 // Add services to the container.
 builder.Services.AddCors(options =>
@@ -73,10 +75,8 @@ builder.Services.AddAuthentication(x =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
         ValidateAudience = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidateLifetime = true, // Ensure that token expiration is checked
-        ClockSkew = TimeSpan.Zero  // Optional: to minimize clock skew issues
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],  
+        ValidAudience = builder.Configuration["Jwt:Audience"], 
     };
 });
 
@@ -97,35 +97,30 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
 else
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = string.Empty;
+    });
 }
 
-app.UseCors("AllowAngularApp");
-
 app.UseHttpsRedirection();
-
-// Add authentication before authorization
+app.UseStaticFiles();
+app.UseCors("AllowAngularApp");
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseEndpoints(endpoints =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
-    c.RoutePrefix = string.Empty; // Swagger at the app root
+    endpoints.MapControllers();
 });
 
-app.MapControllers();
-
 app.Run();
+

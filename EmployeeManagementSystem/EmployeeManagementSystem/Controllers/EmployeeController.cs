@@ -1,13 +1,14 @@
-﻿using EmployeeManagementSystem.IService;
-using EmployeeManagementSystem.Model;
+﻿using EmployeeManagementSystem.Model;
+using EmployeeManagementSystem.Service.Contract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmployeeManagementSystem.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
@@ -17,12 +18,12 @@ namespace EmployeeManagementSystem.Controllers
         }
 
         [HttpGet("GetAllEmployees")]
-        //[Authorize]
         public async Task<ActionResult<IEnumerable<Employee>>> GetAllEmployees()
         {
             var employees = await _employeeService.GetAllEmployees();
             return Ok(employees);
         }
+
         [HttpGet("GetEmployee/{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {

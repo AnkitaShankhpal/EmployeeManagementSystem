@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using EmployeeManagementSystem.Service;
 using EmployeeManagementSystem.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using EmployeeManagementSystem.IService;
+using EmployeeManagementSystem.Service.Contract;
 
 namespace EmployeeManagementSystem.Controllers
 {
@@ -70,32 +70,16 @@ namespace EmployeeManagementSystem.Controllers
             return Ok(new { Message = "User registered successfully." });
         }
 
-        // POST: api/account/login
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDTO model)
+        public async Task<ActionResult> Login([FromBody] LoginDTO model)
         {
             if (model.Email == "Admin23@gmail.com" && model.Password == "Admin@123")
             {
-                var token = _tokenService.GenerateJwtToken(model.Email, model.Password);
+                var token = _tokenService.GenerateJwtToken(model.Email, "Admin");
                 return Ok(new { Token = token });
             }
             return Unauthorized();
-            //if (!ModelState.IsValid)
-            //    return BadRequest(ModelState);
-
-            //var existingEmployee = await _employeeService.GetEmployeeByEmail(model.Email);
-            //if (existingEmployee == null)
-            //    return Unauthorized(new { Message = "Invalid email or password." });
-
-            //var token = _tokenService.GenerateJwtToken(model.Email, model.Password);
-
-            //var response = new LoginResponseModel
-            //{
-            //    Email = model.Email,
-            //    Token = token // Include token in response
-            //};
-
-            //return Ok(response);
         }
+
     }
 }
